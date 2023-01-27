@@ -12,4 +12,5 @@
     <string name="incorrect_toast">Incorrect!</string>
     <string name="next_button">Дальше</string>
     <string name="prev_button">Назад</string>
+    <string name="result">Вы ответили правильно на %d%% вопросов!</string>
 </resources>

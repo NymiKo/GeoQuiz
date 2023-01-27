@@ -1,6 +1,8 @@
 package com.easyprog.android.geomain
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -25,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var currentIndex = 0
+    private var score = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,25 +41,24 @@ class MainActivity : AppCompatActivity() {
 
         trueButton.setOnClickListener {
             checkAnswer(true)
+            changeViewEnable(false)
         }
 
         falseButton.setOnClickListener {
             checkAnswer(false)
+            changeViewEnable(false)
         }
 
         nextButton.setOnClickListener {
             nextQuestion(true)
-            updateQuestion()
         }
 
         prevButton.setOnClickListener {
             nextQuestion(false)
-            updateQuestion()
         }
 
         questionTextView.setOnClickListener {
             nextQuestion(true)
-            updateQuestion()
         }
 
         updateQuestion()
@@ -70,16 +72,30 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionBank[currentIndex].answer
         val messageResId = if (correctAnswer == userAnswer) {
+            score++
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
-        nextQuestion(true)
     }
 
-    private fun nextQuestion(correctAnswer: Boolean) {
-        currentIndex = (if (correctAnswer) currentIndex + 1 else currentIndex - 1) % questionBank.size
-        updateQuestion()
+    private fun nextQuestion(next: Boolean) {
+        currentIndex = (if (next) currentIndex + 1 else currentIndex - 1)
+        if (currentIndex == 6) {
+            changeViewEnable(false)
+            val percentageResponses = (score.toDouble()/currentIndex) * 100
+            questionTextView.text = getString(R.string.result, percentageResponses.toInt())
+            currentIndex = -1
+            score = 0
+        } else {
+            updateQuestion()
+            changeViewEnable(true)
+        }
+    }
+
+    private fun changeViewEnable(enabled: Boolean) {
+        trueButton.isEnabled = enabled
+        falseButton.isEnabled = enabled
     }
 }
