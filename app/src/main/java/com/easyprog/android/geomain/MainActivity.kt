@@ -1,6 +1,5 @@
 package com.easyprog.android.geomain
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -8,8 +7,14 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val KEY_INDEX = "index"
+        private const val KEY_SCORE = "score"
+    }
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
@@ -17,21 +22,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
-    )
-
-    private var currentIndex = 0
-    private var score = 0
+    private val quizViewModel: QuizViewModel by lazy { ViewModelProvider(this)[QuizViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        quizViewModel.currentIndex = savedInstanceState?.getInt(KEY_INDEX) ?: 0
+        quizViewModel.score = savedInstanceState?.getInt(KEY_SCORE) ?: 0
 
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
@@ -50,44 +48,36 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
-            nextQuestion(true)
+            quizViewModel.moveToNext(true)
+            getResult()
         }
 
         prevButton.setOnClickListener {
-            nextQuestion(false)
+            quizViewModel.moveToNext(false)
+            getResult()
         }
 
         questionTextView.setOnClickListener {
-            nextQuestion(true)
+            getResult()
         }
 
         updateQuestion()
     }
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
-        val messageResId = if (correctAnswer == userAnswer) {
-            score++
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
-        }
+        val messageResId = quizViewModel.checkAnswer(userAnswer)
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
 
-    private fun nextQuestion(next: Boolean) {
-        currentIndex = (if (next) currentIndex + 1 else currentIndex - 1)
-        if (currentIndex == 6) {
+    private fun getResult() {
+        if (quizViewModel.currentIndex == 6) {
             changeViewEnable(false)
-            val percentageResponses = (score.toDouble()/currentIndex) * 100
-            questionTextView.text = getString(R.string.result, percentageResponses.toInt())
-            currentIndex = -1
-            score = 0
+            questionTextView.text = getString(R.string.result, quizViewModel.getScoreUser())
         } else {
             updateQuestion()
             changeViewEnable(true)
@@ -97,5 +87,11 @@ class MainActivity : AppCompatActivity() {
     private fun changeViewEnable(enabled: Boolean) {
         trueButton.isEnabled = enabled
         falseButton.isEnabled = enabled
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_INDEX, quizViewModel.currentIndex)
+        outState.putInt(KEY_SCORE, quizViewModel.score)
     }
 }
