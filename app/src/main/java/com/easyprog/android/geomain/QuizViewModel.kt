@@ -1,13 +1,8 @@
 package com.easyprog.android.geomain
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 
 class QuizViewModel: ViewModel() {
-
-    companion object {
-        private const val TAG = "QuizViewModel"
-    }
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -20,6 +15,7 @@ class QuizViewModel: ViewModel() {
 
     var currentIndex = 0
     var score = 0
+    var isCheater = false
 
     val currentQuestionAnswer: Boolean get() = questionBank[currentIndex].answer
     val currentQuestionText: Int get() = questionBank[currentIndex].textResId
@@ -29,11 +25,13 @@ class QuizViewModel: ViewModel() {
     }
 
     fun checkAnswer(userAnswer: Boolean): Int {
-        return if (currentQuestionAnswer == userAnswer) {
-            score++
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
+        return when {
+            isCheater -> R.string.judgment_toast
+            currentQuestionAnswer == userAnswer -> {
+                score++
+                R.string.correct_toast
+            }
+            else -> R.string.incorrect_toast
         }
     }
 

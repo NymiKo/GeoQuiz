@@ -1,11 +1,15 @@
 package com.easyprog.android.geomain
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 
@@ -14,14 +18,18 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val KEY_INDEX = "index"
         private const val KEY_SCORE = "score"
+        private const val REQUEST_CODE_CHEAT = 0
+        private const val EXTRA_ANSWER_SHOWN = "com.easyprog.android.geomain.answer_shown"
     }
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
+    private lateinit var cheatButton: Button
     private lateinit var questionTextView: TextView
 
+    private var launcher: ActivityResultLauncher<Intent>? = null
     private val quizViewModel: QuizViewModel by lazy { ViewModelProvider(this)[QuizViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
+        cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.question_text_view)
 
         trueButton.setOnClickListener {
@@ -55,6 +64,19 @@ class MainActivity : AppCompatActivity() {
         prevButton.setOnClickListener {
             quizViewModel.moveToNext(false)
             getResult()
+        }
+
+        launcher = registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val isCheater = result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+                quizViewModel.isCheater = isCheater
+            }
+        }
+
+        cheatButton.setOnClickListener {
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            launcher?.launch(intent)
         }
 
         questionTextView.setOnClickListener {

@@ -13,4 +13,8 @@
     <string name="next_button">Дальше</string>
     <string name="prev_button">Назад</string>
     <string name="result">Вы ответили правильно на %d%% вопросов!</string>
+    <string name="warning_text">Ты уверен, что хочешь это сделать?</string>
+    <string name="show_answer_button">Показать ответ</string>
+    <string name="cheat_button">Читы!</string>
+    <string name="judgment_toast">Читы - это неправильно!</string>
 </resources>
