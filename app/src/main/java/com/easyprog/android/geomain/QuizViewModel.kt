@@ -21,7 +21,12 @@ class QuizViewModel: ViewModel() {
     val currentQuestionText: Int get() = questionBank[currentIndex].textResId
 
     fun moveToNext(next: Boolean) {
-        currentIndex = if (next) currentIndex + 1 else currentIndex - 1
+        currentIndex = if (next) {
+            isCheater = false
+            currentIndex + 1
+        } else {
+            currentIndex - 1
+        }
     }
 
     fun checkAnswer(userAnswer: Boolean): Int {
