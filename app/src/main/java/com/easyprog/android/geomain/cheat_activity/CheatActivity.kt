@@ -1,13 +1,17 @@
-package com.easyprog.android.geomain
+package com.easyprog.android.geomain.cheat_activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
+import com.easyprog.android.geomain.R
 
 class CheatActivity : AppCompatActivity() {
 
@@ -25,32 +29,35 @@ class CheatActivity : AppCompatActivity() {
 
     private lateinit var answerTextView: TextView
     private lateinit var showAnswerButton: Button
+    private lateinit var androidVersionTextView: TextView
 
-    private var answerIsTrue = false
-    private var isCheater = false
+    private val viewModel: CheatViewModel by lazy { ViewModelProvider(this)[CheatViewModel::class.java] }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cheat)
 
-        isCheater = savedInstanceState?.getBoolean(KEY_IS_CHEATER) ?: false
-
-        answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
+        viewModel.answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
 
         answerTextView = findViewById(R.id.answer_text_view)
         showAnswerButton = findViewById(R.id.show_answer_button)
+        androidVersionTextView = findViewById(R.id.android_version_text_view)
+
 
         showAnswerButton.setOnClickListener {
-            val answerText = when(answerIsTrue) {
+            val answerText = when(viewModel.answerIsTrue) {
                 true -> R.string.true_button
                 false -> R.string.false_button
             }
+            viewModel.isCheater = true
             answerTextView.setText(answerText)
-            isCheater = true
             setAnswerShownResult()
         }
 
-        if (isCheater) setAnswerShownResult()
+        if (viewModel.isCheater) setAnswerShownResult()
+
+        androidVersionTextView.text = "API level ${Build.VERSION.SDK_INT}"
     }
 
     private fun setAnswerShownResult() {
@@ -58,10 +65,5 @@ class CheatActivity : AppCompatActivity() {
             putExtra(EXTRA_ANSWER_SHOWN, true)
         }
         setResult(Activity.RESULT_OK, data)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(KEY_IS_CHEATER, isCheater)
     }
 }

@@ -17,4 +17,6 @@
     <string name="show_answer_button">Показать ответ</string>
     <string name="cheat_button">Читы!</string>
     <string name="judgment_toast">Читы - это неправильно!</string>
+    <string name="hints_ended">Вы израсходовали попытки!</string>
+    <string name="hints_count">У вас осталось попыток: %d!</string>
 </resources>

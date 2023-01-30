@@ -1,6 +1,8 @@
-package com.easyprog.android.geomain
+package com.easyprog.android.geomain.activity.main_activity
 
 import androidx.lifecycle.ViewModel
+import com.easyprog.android.geomain.model.Question
+import com.easyprog.android.geomain.R
 
 class QuizViewModel: ViewModel() {
 
@@ -16,6 +18,7 @@ class QuizViewModel: ViewModel() {
     var currentIndex = 0
     var score = 0
     var isCheater = false
+    var countHints = 3
 
     val currentQuestionAnswer: Boolean get() = questionBank[currentIndex].answer
     val currentQuestionText: Int get() = questionBank[currentIndex].textResId

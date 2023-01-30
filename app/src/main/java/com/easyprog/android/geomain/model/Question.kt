@@ -1,4 +1,4 @@
-package com.easyprog.android.geomain
+package com.easyprog.android.geomain.model
 
 import androidx.annotation.StringRes
 
